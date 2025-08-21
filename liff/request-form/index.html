@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食品リクエストフォーム - フードバンク倉庫システム</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="../common/css/style.css">
+</head>
+<body>
+    <!-- Loading spinner -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">読み込み中...</span>
+        </div>
+    </div>
+
+    <!-- Main container -->
+    <div class="container mt-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-box"></i> 食品リクエストフォーム
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- User info -->
+                <div id="userInfo" class="alert alert-info d-none">
+                    <small>ログインユーザー: <span id="displayName"></span></small>
+                </div>
+
+                <!-- Request form -->
+                <form id="requestForm">
+                    <!-- Requester info (auto-filled) -->
+                    <div class="mb-3">
+                        <label class="form-label">団体名</label>
+                        <input type="text" class="form-control" id="requesterName" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">団体住所</label>
+                        <input type="text" class="form-control" id="requesterAddress" readonly>
+                    </div>
+
+                    <!-- Pickup info -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ピックアップ予定日 <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="pickupDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ピックアップタイプ <span class="text-danger">*</span></label>
+                            <select class="form-select" id="pickupType" required>
+                                <option value="">選択してください</option>
+                                <option value="self">セルフピックアップ</option>
+                                <option value="delivery">WeNeed配送</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Event type -->
+                    <div class="mb-3">
+                        <label class="form-label">開催タイプ <span class="text-danger">*</span></label>
+                        <select class="form-select" id="eventType" required>
+                            <option value="">選択してください</option>
+                            <option value="kodomo">子ども食堂の調理用</option>
+                            <option value="pantry">パントリーでの配布用</option>
+                            <option value="both">両方</option>
+                        </select>
+                    </div>
+
+                    <!-- Pantry type (conditional) -->
+                    <div class="mb-3 d-none" id="pantryTypeSection">
+                        <label class="form-label">パントリー目的</label>
+                        <select class="form-select" id="pantryType">
+                            <option value="">選択してください</option>
+                            <option value="foodloss">フードロス削減</option>
+                            <option value="support">生活困窮世帯の支援</option>
+                        </select>
+                    </div>
+
+                    <!-- Household counts -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3 d-none" id="kodomoCountSection">
+                            <label class="form-label">子ども食堂利用世帯数</label>
+                            <input type="number" class="form-control" id="kodomoCount" min="0">
+                        </div>
+                        <div class="col-md-6 mb-3 d-none" id="pantryCountSection">
+                            <label class="form-label">パントリー利用世帯数</label>
+                            <input type="number" class="form-control" id="pantryCount" min="0">
+                        </div>
+                    </div>
+
+                    <!-- Food requests -->
+                    <div class="mb-3 d-none" id="kodomoRequestSection">
+                        <label class="form-label">子ども食堂調理用の食品リクエスト</label>
+                        <textarea class="form-control" id="kodomoRequest" rows="3" placeholder="必要な食品をご記入ください"></textarea>
+                    </div>
+
+                    <div class="mb-3 d-none" id="pantryRequestSection">
+                        <label class="form-label">パントリー配布用の食品リクエスト</label>
+                        <textarea class="form-control" id="pantryRequest" rows="3" placeholder="必要な食品をご記入ください"></textarea>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="mb-3">
+                        <label class="form-label">コメント</label>
+                        <textarea class="form-control" id="comments" rows="2" placeholder="その他連絡事項があればご記入ください"></textarea>
+                    </div>
+
+                    <!-- Submit button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> リクエストを送信
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <!-- Common JS -->
+    <script src="../common/js/liff-init.js"></script>
+    <!-- App specific JS -->
+    <script src="app.js"></script>
+</body>
+</html>

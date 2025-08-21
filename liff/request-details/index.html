@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リクエスト詳細 - フードバンク倉庫システム</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="../common/css/style.css">
+</head>
+<body>
+    <!-- Loading spinner -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">読み込み中...</span>
+        </div>
+    </div>
+
+    <!-- Main container -->
+    <div class="container mt-3">
+        <!-- Back button -->
+        <div class="mb-3">
+            <button class="btn btn-outline-secondary btn-sm" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i> 戻る
+            </button>
+        </div>
+
+        <!-- Request details card -->
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-alt"></i> リクエスト詳細
+                    <span id="requestId" class="float-end"></span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Status and actions -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div id="statusBadge"></div>
+                    <div id="actionButtons"></div>
+                </div>
+
+                <!-- Basic info -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">団体名</label>
+                        <p class="mb-2" id="requesterName"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">団体住所</label>
+                        <p class="mb-2" id="requesterAddress"></p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">ピックアップ予定日</label>
+                        <p class="mb-2" id="pickupDate"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">ピックアップタイプ</label>
+                        <p class="mb-2" id="pickupType"></p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">開催タイプ</label>
+                        <p class="mb-2" id="eventType"></p>
+                    </div>
+                    <div class="col-md-6" id="pantryTypeSection">
+                        <label class="text-muted small">パントリー目的</label>
+                        <p class="mb-2" id="pantryType"></p>
+                    </div>
+                </div>
+
+                <!-- Household counts -->
+                <div class="row mb-3" id="householdSection">
+                    <div class="col-md-6" id="kodomoCountSection">
+                        <label class="text-muted small">子ども食堂利用世帯数</label>
+                        <p class="mb-2" id="kodomoCount"></p>
+                    </div>
+                    <div class="col-md-6" id="pantryCountSection">
+                        <label class="text-muted small">パントリー利用世帯数</label>
+                        <p class="mb-2" id="pantryCount"></p>
+                    </div>
+                </div>
+
+                <!-- Food requests -->
+                <div class="mb-3" id="kodomoRequestSection">
+                    <label class="text-muted small">子ども食堂調理用の食品リクエスト</label>
+                    <p class="mb-2" id="kodomoRequest"></p>
+                </div>
+
+                <div class="mb-3" id="pantryRequestSection">
+                    <label class="text-muted small">パントリー配布用の食品リクエスト</label>
+                    <p class="mb-2" id="pantryRequest"></p>
+                </div>
+
+                <!-- Internal comments (staff only) -->
+                <div class="mb-3" id="internalCommentsSection" style="display: none;">
+                    <label class="text-muted small">業務連絡</label>
+                    <div class="border rounded p-2">
+                        <p class="mb-2" id="internalComments"></p>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="editInternalComments()">
+                            <i class="fas fa-edit"></i> 編集
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Photos card -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-camera"></i> 写真
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="photoGallery" class="d-flex flex-wrap mb-3">
+                    <!-- Photos will be displayed here -->
+                </div>
+                
+                <!-- Photo upload area -->
+                <div id="photoUploadSection" style="display: none;">
+                    <div class="photo-upload-area" id="photoUploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                        <p class="mb-0">クリックまたはドラッグして写真をアップロード</p>
+                        <input type="file" id="photoInput" accept="image/*" multiple style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments card -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-comments"></i> コメント
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="commentThread" class="comment-thread mb-3">
+                    <!-- Comments will be displayed here -->
+                </div>
+                
+                <!-- Add comment form -->
+                <div class="input-group">
+                    <input type="text" class="form-control" id="newComment" placeholder="コメントを入力...">
+                    <button class="btn btn-primary" onclick="addComment()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo modal -->
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">写真</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalPhoto" src="" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <!-- Common JS -->
+    <script src="../common/js/liff-init.js"></script>
+    <!-- App specific JS -->
+    <script src="app.js"></script>
+</body>
+</html>
