@@ -4,8 +4,23 @@
 window.WAREHOUSE_API_URL = 'https://script.google.com/macros/s/AKfycby3cljD8FT5yBB2VM4Q2pw7Za8OfT6L5m67dtdVfUjnhedNBDK384E3GNBp1XzQFK1g/exec';
 window.KODOMO_NW_API_URL = 'https://script.google.com/macros/s/AKfycbwyDc0GFNBChfjsbiAP9HLmWTWELhUPUOcsbV1iQZagEbUf-wHm1dLYJdx2XTkWLT8E8Q/exec';
 
-// LIFF ID (to be set when registered)
-const LIFF_ID = ''; // Will be set after LIFF registration
+// LIFF IDs (set after registration)
+const LIFF_IDS = {
+    requestForm: '2007977152-VaXgDOXk',
+    requestTable: '', // To be set
+    requestDetails: '', // To be set
+    requestDashboard: '' // To be set
+};
+
+// Get current LIFF ID based on pathname
+function getCurrentLiffId() {
+    const pathname = window.location.pathname;
+    if (pathname.includes('request-form')) return LIFF_IDS.requestForm;
+    if (pathname.includes('request-table')) return LIFF_IDS.requestTable;
+    if (pathname.includes('request-details')) return LIFF_IDS.requestDetails;
+    if (pathname.includes('request-dashboard')) return LIFF_IDS.requestDashboard;
+    return '';
+}
 
 // Initialize LIFF
 document.addEventListener('DOMContentLoaded', async function() {
@@ -16,8 +31,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         
         // Initialize LIFF
-        if (LIFF_ID) {
-            await liff.init({ liffId: LIFF_ID });
+        const liffId = getCurrentLiffId();
+        if (liffId) {
+            await liff.init({ liffId: liffId });
             
             // Check if user is logged in
             if (!liff.isLoggedIn()) {
@@ -40,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
             }
         } else {
-            console.warn('LIFF ID not set. Running in development mode.');
+            console.warn('LIFF ID not set for this app. Running in development mode.');
             // Development mode - call onLiffInit with mock data
             if (typeof window.onLiffInit === 'function') {
                 window.onLiffInit({

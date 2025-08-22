@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .test-section {
+            margin-bottom: 30px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            border-color: #ef5350;
+        }
+        .success {
+            color: #388e3c;
+            background-color: #e8f5e9;
+            border-color: #66bb6a;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.working {
+            background-color: #2196F3;
+            color: white;
+        }
+        .status.error {
+            background-color: #f44336;
+            color: white;
+        }
+        .status.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Warehouse System API Test</h1>
+    
+    <div class="container">
+        <h2>API Endpoints</h2>
+        <p><strong>Main Warehouse GAS:</strong><br>
+        <code id="warehouseUrl">https://script.google.com/macros/s/AKfycby3cljD8FT5yBB2VM4Q2pw7Za8OfT6L5m67dtdVfUjnhedNBDK384E3GNBp1XzQFK1g/exec</code></p>
+        
+        <p><strong>Kodomo Network GAS:</strong><br>
+        <code id="kodomoUrl">https://script.google.com/macros/s/AKfycbwyDc0GFNBChfjsbiAP9HLmWTWELhUPUOcsbV1iQZagEbUf-wHm1dLYJdx2XTkWLT8E8Q/exec</code></p>
+    </div>
+
+    <div class="container test-section">
+        <h2>1. Basic Connection Test</h2>
+        <button onclick="testBasicGet('warehouse')">Test Warehouse GET</button>
+        <button onclick="testBasicGet('kodomo')">Test Kodomo Network GET</button>
+        <button onclick="testBasicPost('warehouse')">Test Warehouse POST</button>
+        <button onclick="testBasicPost('kodomo')">Test Kodomo Network POST</button>
+        <div id="basicResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container test-section">
+        <h2>2. API Actions Test</h2>
+        <button onclick="testAction('getUserRole')">Test getUserRole</button>
+        <button onclick="testAction('getRequests')">Test getRequests</button>
+        <button onclick="testAction('getRequesterByLineId')">Test getRequesterByLineId</button>
+        <button onclick="testAction('createRequest')">Test createRequest (Mock)</button>
+        <div id="actionResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container test-section">
+        <h2>3. Spreadsheet Structure Analysis</h2>
+        <button onclick="analyzeStructure()">Analyze Spreadsheet Structure</button>
+        <div id="structureResult" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        const WAREHOUSE_API_URL = document.getElementById('warehouseUrl').textContent;
+        const KODOMO_NW_API_URL = document.getElementById('kodomoUrl').textContent;
+
+        function showResult(elementId, content, isError = false) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result ' + (isError ? 'error' : 'success');
+            resultDiv.textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+        }
+
+        async function testBasicGet(api) {
+            const url = api === 'warehouse' ? WAREHOUSE_API_URL : KODOMO_NW_API_URL;
+            try {
+                showResult('basicResult', `Testing GET request to ${api}...`);
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                // Try to parse as JSON
+                try {
+                    const json = JSON.parse(text);
+                    showResult('basicResult', `${api} GET Response:\n${JSON.stringify(json, null, 2)}`);
+                } catch {
+                    showResult('basicResult', `${api} GET Response (HTML):\n${text.substring(0, 500)}...`, true);
+                }
+            } catch (error) {
+                showResult('basicResult', `Error testing ${api} GET: ${error.message}`, true);
+            }
+        }
+
+        async function testBasicPost(api) {
+            const url = api === 'warehouse' ? WAREHOUSE_API_URL : KODOMO_NW_API_URL;
+            try {
+                showResult('basicResult', `Testing POST request to ${api}...`);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'test' })
+                });
+                const text = await response.text();
+                
+                // Try to parse as JSON
+                try {
+                    const json = JSON.parse(text);
+                    showResult('basicResult', `${api} POST Response:\n${JSON.stringify(json, null, 2)}`);
+                } catch {
+                    showResult('basicResult', `${api} POST Response (HTML):\n${text.substring(0, 500)}...`, true);
+                }
+            } catch (error) {
+                showResult('basicResult', `Error testing ${api} POST: ${error.message}`, true);
+            }
+        }
+
+        async function testAction(action) {
+            showResult('actionResult', `Testing action: ${action}...`);
+            
+            let url, method = 'GET', body = null;
+            
+            switch(action) {
+                case 'getUserRole':
+                    url = `${WAREHOUSE_API_URL}?action=getUserRole&lineUserId=test-user-123`;
+                    break;
+                case 'getRequests':
+                    url = `${WAREHOUSE_API_URL}?action=getRequests&userRole=admin&userId=test-admin`;
+                    break;
+                case 'getRequesterByLineId':
+                    url = `${KODOMO_NW_API_URL}?action=getRequesterByLineId&lineUserId=test-user-123`;
+                    break;
+                case 'createRequest':
+                    url = WAREHOUSE_API_URL;
+                    method = 'POST';
+                    body = JSON.stringify({
+                        action: 'createRequest',
+                        requesterName: 'テスト団体',
+                        requesterAddress: 'テスト住所',
+                        pickupDate: new Date().toISOString().split('T')[0],
+                        pickupType: 'self',
+                        eventType: 'kodomo',
+                        kodomoCount: 10,
+                        pantryCount: 0,
+                        kodomoRequest: 'テストリクエスト',
+                        lineUserId: 'test-user-123',
+                        siteId: 'test-site-001'
+                    });
+                    break;
+            }
+            
+            try {
+                const options = method === 'POST' ? {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body
+                } : {};
+                
+                const response = await fetch(url, options);
+                const text = await response.text();
+                
+                try {
+                    const json = JSON.parse(text);
+                    showResult('actionResult', `Action "${action}" Response:\n${JSON.stringify(json, null, 2)}`);
+                } catch {
+                    showResult('actionResult', `Action "${action}" Response (not JSON):\n${text.substring(0, 500)}...`, true);
+                }
+            } catch (error) {
+                showResult('actionResult', `Error testing action "${action}": ${error.message}`, true);
+            }
+        }
+
+        async function analyzeStructure() {
+            showResult('structureResult', 'Analyzing API structure based on LIFF app code...');
+            
+            const analysis = {
+                "Expected Warehouse API Actions": {
+                    "GET": [
+                        "getUserRole - Get user role by LINE user ID",
+                        "getRequests - Get requests based on user role and filters",
+                        "getRequestDetails - Get specific request details",
+                        "getDashboardData - Get dashboard statistics"
+                    ],
+                    "POST": [
+                        "createRequest - Create new food request",
+                        "updateRequestStatus - Update request status",
+                        "addComment - Add comment to request",
+                        "uploadPhoto - Upload photo for request"
+                    ]
+                },
+                "Expected Kodomo Network API Actions": {
+                    "GET": [
+                        "getRequesterByLineId - Get requester info by LINE ID",
+                        "getSiteInfo - Get site information by site ID"
+                    ]
+                },
+                "Data Models": {
+                    "Request": {
+                        "requestId": "YYMMDDnn format",
+                        "status": "active/completed/cancelled",
+                        "requesterName": "string",
+                        "requesterAddress": "string",
+                        "pickupDate": "YYYY-MM-DD",
+                        "pickupType": "self/delivery",
+                        "eventType": "kodomo/pantry/both",
+                        "pantryType": "foodloss/support",
+                        "kodomoCount": "number",
+                        "pantryCount": "number",
+                        "kodomoRequest": "string",
+                        "pantryRequest": "string",
+                        "comments": "JSON array",
+                        "pictures": "array of Drive IDs",
+                        "createdAt": "datetime",
+                        "updatedAt": "datetime"
+                    },
+                    "User": {
+                        "userId": "LINE WORKS user ID",
+                        "displayName": "string",
+                        "role": "requester/staff/driver/admin",
+                        "lineUserId": "LINE user ID",
+                        "siteId": "site ID for requesters"
+                    }
+                },
+                "Current Issues": [
+                    "Main warehouse GAS missing doGet/doPost functions",
+                    "Kodomo network GAS returns 'Invalid GET action' error",
+                    "Need to implement proper API endpoints in GAS",
+                    "Need to create/update spreadsheet structure"
+                ]
+            };
+            
+            showResult('structureResult', JSON.stringify(analysis, null, 2));
+        }
+    </script>
+</body>
+</html>

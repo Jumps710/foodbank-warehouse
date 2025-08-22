@@ -1,0 +1,8 @@
+{
+  "scriptId": "",
+  "rootDir": "./gas-project",
+  "filePushOrder": [
+    "appsscript.json",
+    "Code.gs"
+  ]
+}
